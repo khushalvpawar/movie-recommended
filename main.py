@@ -185,30 +185,20 @@ async def tmdb_search_first(query: str) -> Optional[dict]:
 # =========================
 # TF-IDF Helpers
 # =========================
-def build_title_to_idx_map(indices: Any) -> Dict[str, int]:
-    """
-    indices.pkl can be:
-    - dict(title -> index)
-    - pandas Series (index=title, value=index)
-    We normalize into TITLE_TO_IDX.
-    """
-    title_to_idx: Dict[str, int] = {}
+def build_title_to_idx_map(indices_obj):
+    title_to_idx = {}
 
-    if isinstance(indices, dict):
-        for k, v in indices.items():
-            title_to_idx[_norm_title(k)] = int(v)
-        return title_to_idx
+    for k, v in indices_obj.items():
+        # FIX: check if v is dict
+        if isinstance(v, dict):
+            # try to get id/index from dict
+            val = v.get("id") or v.get("index") or list(v.values())[0]
+        else:
+            val = v
 
-    # pandas Series or similar mapping
-    try:
-        for k, v in indices.items():
-            title_to_idx[_norm_title(k)] = int(v)
-        return title_to_idx
-    except Exception:
-        # last resort: if it's a list-like etc.
-        raise RuntimeError(
-            "indices.pkl must be dict or pandas Series-like (with .items())"
-        )
+        title_to_idx[_norm_title(k)] = int(val)
+
+    return title_to_idx 
 
 
 def get_local_idx_by_title(title: str) -> int:
