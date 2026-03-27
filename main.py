@@ -188,17 +188,22 @@ async def tmdb_search_first(query: str) -> Optional[dict]:
 def build_title_to_idx_map(indices_obj):
     title_to_idx = {}
 
-    for k, v in indices_obj.items():
-        # FIX: check if v is dict
-        if isinstance(v, dict):
-            # try to get id/index from dict
-            val = v.get("id") or v.get("index") or list(v.values())[0]
+    for i, (k, v) in enumerate(indices_obj.items()):
+        # जर value number असेल तर use कर
+        if isinstance(v, (int, float)):
+            val = int(v)
+
+        # जर dict असेल
+        elif isinstance(v, dict):
+            val = v.get("id") or v.get("index") or i
+
+        # जर string असेल (जसं "Avatar")
         else:
-            val = v
+            val = i   # index manually assign कर
 
-        title_to_idx[_norm_title(k)] = int(val)
+        title_to_idx[_norm_title(k)] = val
 
-    return title_to_idx 
+    return title_to_idx
 
 
 def get_local_idx_by_title(title: str) -> int:
