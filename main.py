@@ -189,19 +189,19 @@ def build_title_to_idx_map(indices_obj):
     title_to_idx = {}
 
     for i, (k, v) in enumerate(indices_obj.items()):
-        # जर value number असेल तर use कर
+        
+        # Case 1: number असेल
         if isinstance(v, (int, float)):
-            val = int(v)
+            title_to_idx[_norm_title(k)] = int(v)
 
-        # जर dict असेल
+        # Case 2: dict असेल
         elif isinstance(v, dict):
             val = v.get("id") or v.get("index") or i
+            title_to_idx[_norm_title(k)] = int(val)
 
-        # जर string असेल (जसं "Avatar")
+        # Case 3: string असेल (IMPORTANT FIX)
         else:
-            val = i   # index manually assign कर
-
-        title_to_idx[_norm_title(k)] = val
+            title_to_idx[_norm_title(k)] = i   # NO int() here
 
     return title_to_idx
 
